@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title th:text="${blog.title}">Blog Post</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #526cfe; --danger: #e05c5c;
+      --bg: #ffffff; --text: #1a1a1a; --muted: #737373; --border: #e8e8e8;
+      --code-bg: #f6f8fa; --sidebar-bg: #1e1e2e;
+      --sidebar-text: rgba(255,255,255,0.87); --sidebar-muted: rgba(255,255,255,0.45);
+      --sidebar-hover: rgba(255,255,255,0.08); --sidebar-active: rgba(82,108,254,0.25);
+      --sidebar-width: 260px; --toc-width: 220px;
+    }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    html, body { height: 100%; font-family: 'Roboto', sans-serif; }
+    body { display: flex; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .sidebar { width: var(--sidebar-width); min-height: 100vh; background: var(--sidebar-bg); position: fixed; left: 0; top: 0; bottom: 0; overflow-y: auto; z-index: 100; }
+    .sidebar-header { padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .site-name { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sidebar-text); text-decoration: none; font-family: 'Roboto Mono', monospace; }
+    .nav-section { padding: 12px 0; }
+    .nav-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sidebar-muted); padding: 8px 16px 4px; }
+    .nav-link { display: flex; align-items: center; gap: 10px; padding: 9px 16px; font-size: 13.5px; color: var(--sidebar-text); text-decoration: none; transition: background 0.15s; border-radius: 4px; margin: 1px 8px; }
+    .nav-link:hover { background: var(--sidebar-hover); }
+    .nav-link.active { background: var(--sidebar-active); color: #7c9bff; font-weight: 500; }
+    .nav-sub { padding-left: 16px; }
+    .nav-sub .nav-link { font-size: 12.5px; color: var(--sidebar-muted); padding: 7px 12px; }
+    .nav-sub .nav-link:hover { color: var(--sidebar-text); }
+
+    .toc-sidebar { width: var(--toc-width); position: fixed; right: 0; top: 48px; bottom: 0; overflow-y: auto; padding: 24px 16px; border-left: 1px solid var(--border); }
+    .toc-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    .toc-list { list-style: none; }
+    .toc-item { margin-bottom: 4px; }
+    .toc-link { font-size: 12.5px; color: var(--muted); text-decoration: none; line-height: 1.5; display: block; padding: 3px 0 3px 10px; border-left: 2px solid transparent; transition: color 0.15s, border-color 0.15s; }
+    .toc-link:hover { color: var(--primary); border-left-color: var(--primary); }
+    .toc-link.active { color: var(--primary); border-left-color: var(--primary); font-weight: 500; }
+    .toc-sub { padding-left: 12px; }
+    .toc-sub .toc-link { font-size: 12px; }
+    .toc-back { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .toc-back a { font-size: 12.5px; color: var(--muted); text-decoration: none; }
+    .toc-back a:hover { color: var(--primary); }
+    .meta-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .meta-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .meta-value { font-size: 12.5px; color: var(--muted); font-family: 'Roboto Mono', monospace; line-height: 1.8; }
+
+    .main { margin-left: var(--sidebar-width); margin-right: var(--toc-width); flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+    .topbar { height: 48px; background: var(--sidebar-bg); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: sticky; top: 0; z-index: 50; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .topbar-site { font-size: 13px; font-weight: 700; color: #fff; text-decoration: none; font-family: 'Roboto Mono', monospace; letter-spacing: 0.06em; text-transform: uppercase; }
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
+
+    .btn-edit-top { font-family: 'Roboto Mono', monospace; font-size: 11.5px; background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); padding: 6px 14px; border-radius: 6px; cursor: pointer; text-decoration: none; transition: all 0.18s; }
+    .btn-edit-top:hover { border-color: #7c9bff; color: #7c9bff; }
+    .btn-delete-top { font-family: 'Roboto Mono', monospace; font-size: 11.5px; background: none; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: all 0.18s; }
+    .btn-delete-top:hover { border-color: var(--danger); color: var(--danger); }
+    .btn-logout { font-family: 'Roboto Mono', monospace; font-size: 11.5px; background: none; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: all 0.18s; }
+    .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+    .article-wrap { max-width: 760px; padding: 48px 48px 80px; }
+    .article-title { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--text); margin-bottom: 28px; }
+    .article-body { line-height: 1.8; font-size: 16px; }
+    .article-body h2 { font-size: 24px; font-weight: 700; margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); letter-spacing: -0.01em; }
+    .article-body h3 { font-size: 18px; font-weight: 700; margin: 28px 0 12px; }
+    .article-body h4 { font-size: 16px; font-weight: 700; margin: 20px 0 10px; }
+    .article-body p { margin-bottom: 16px; color: #333; }
+    .article-body a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
+    .article-body strong { font-weight: 700; }
+    .article-body code { font-family: 'Roboto Mono', monospace; font-size: 13.5px; background: var(--code-bg); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; color: #e53935; }
+    .article-body pre { background: #1e1e2e; border-radius: 8px; padding: 20px 24px; overflow-x: auto; margin: 20px 0; border: 1px solid rgba(255,255,255,0.06); }
+    .article-body pre code { font-family: 'Roboto Mono', monospace; font-size: 13.5px; line-height: 1.65; background: none; border: none; padding: 0; color: #cdd6f4; }
+    .article-body blockquote { border-left: 4px solid var(--primary); padding: 12px 20px; margin: 20px 0; background: rgba(82,108,254,0.05); border-radius: 0 4px 4px 0; color: var(--muted); font-style: italic; }
+    .article-body ul, .article-body ol { padding-left: 24px; margin-bottom: 16px; }
+    .article-body li { margin-bottom: 6px; line-height: 1.7; }
+    .article-body img { max-width: 100%; border-radius: 6px; margin: 20px 0; border: 1px solid var(--border); }
+    .article-body table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14.5px; }
+    .article-body th { background: var(--code-bg); font-weight: 600; padding: 10px 14px; border: 1px solid var(--border); text-align: left; }
+    .article-body td { padding: 9px 14px; border: 1px solid var(--border); }
+    .article-body tr:nth-child(even) td { background: #fafafa; }
+    .site-footer { padding: 24px 48px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); margin-top: auto; }
+
+    @media (max-width: 1100px) { .toc-sidebar { display: none; } .main { margin-right: 0; } }
+    @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .article-wrap { padding: 24px 20px 60px; } .article-title { font-size: 24px; } }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-header"><a href="/" class="site-name">myblog</a></div>
+    <nav class="nav-section">
+      <div class="nav-label">Navigation</div>
+      <a href="/" class="nav-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </a>
+      <a href="/blog" class="nav-link active">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Blog
+      </a>
+    </nav>
+    <nav class="nav-section nav-sub">
+      <div class="nav-label">Blog</div>
+      <a href="/blog" class="nav-link">Index</a>
+    </nav>
+  </aside>
+
+  <aside class="toc-sidebar">
+    <div class="toc-label">Table of contents</div>
+    <ul class="toc-list" id="toc-list"></ul>
+    <div class="toc-back"><a href="/blog">← Back to index</a></div>
+    <div class="meta-section">
+      <div class="meta-label">Metadata</div>
+      <div class="meta-value">
+        <div th:text="${#temporals.format(blog.createdAt, 'MMMM d, yyyy')}">Date</div>
+        <div th:text="${blog.readMinutes} + ' min read'">5 min read</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <a href="/" class="topbar-site">myblog</a>
+
+      <!-- Admin only: edit + delete + logout -->
+      <div class="topbar-right" sec:authorize="hasRole('ADMIN')">
+        <a th:href="@{/blog/{id}/edit(id=${blog.id})}" class="btn-edit-top">edit</a>
+        <form th:action="@{/blog/{id}/delete(id=${blog.id})}" method="post" style="margin:0">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button type="submit" class="btn-delete-top"
+                  onclick="return confirm('Delete this post permanently?')">delete</button>
+        </form>
+        <form th:action="@{/logout}" method="post" style="margin:0">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button type="submit" class="btn-logout">logout</button>
+        </form>
+      </div>
+    </header>
+
+    <div class="article-wrap">
+      <h1 class="article-title" th:text="${blog.title}">Post Title</h1>
+      <div class="article-body" th:utext="${blog.content}">Content here...</div>
+    </div>
+
+    <footer class="site-footer">Made with Spring Boot &amp; Thymeleaf</footer>
+  </div>
+
+  <script>hljs.highlightAll();</script>
+  <script>
+    const headings = document.querySelectorAll('.article-body h2, .article-body h3');
+    const tocList  = document.getElementById('toc-list');
+    headings.forEach((h, i) => {
+      if (!h.id) h.id = 'heading-' + i;
+      const li = document.createElement('li');
+      li.className = 'toc-item' + (h.tagName === 'H3' ? ' toc-sub' : '');
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.className = 'toc-link';
+      a.textContent = h.textContent;
+      li.appendChild(a);
+      tocList.appendChild(li);
+    });
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        const link = tocList.querySelector(`a[href="#${entry.target.id}"]`);
+        if (link) link.classList.toggle('active', entry.isIntersecting);
+      });
+    }, { rootMargin: '-48px 0px -70% 0px' });
+    headings.forEach(h => observer.observe(h));
+  </script>
+</body>
+</html>

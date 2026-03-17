@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title th:text="${username} + ' — Home'">Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:     #f7f5f0;
+      --text:   #1a1a18;
+      --muted:  #888680;
+      --accent: #2a5cff;
+      --border: #e2dfd8;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lora', Georgia, serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 24px;
+    }
+
+    /* subtle grain */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      animation: appear 0.6s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Avatar circle */
+    .avatar-ring {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      background: var(--border);
+      border: 2px solid var(--border);
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 28px; font-weight: 500;
+      color: var(--muted);
+      animation: appear 0.6s 0.05s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    /* Name */
+    h1 {
+      font-family: 'Lora', serif;
+      font-size: 22px; font-weight: 500;
+      letter-spacing: 0.01em;
+      color: var(--text);
+      margin-bottom: 6px;
+      animation: appear 0.6s 0.1s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    /* Mono tagline */
+    .role {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px; color: var(--muted);
+      letter-spacing: 0.04em;
+      margin-bottom: 32px;
+      animation: appear 0.6s 0.15s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .line {
+      width: 32px; height: 1px;
+      background: var(--border);
+      margin: 0 auto 28px;
+      animation: appear 0.6s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    /* Welcome note */
+    .welcome {
+      font-size: 15px; line-height: 1.75;
+      color: var(--muted); font-style: italic;
+      margin-bottom: 36px;
+      animation: appear 0.6s 0.22s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .welcome strong {
+      font-style: normal; font-weight: 500;
+      color: var(--text);
+    }
+
+    /* Links */
+    .links {
+      display: flex; flex-direction: column; gap: 10px;
+      animation: appear 0.6s 0.28s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .link-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 18px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+      text-decoration: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px;
+      transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
+    }
+
+    .link-btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 2px 16px rgba(42,92,255,0.08);
+      transform: translateY(-1px);
+    }
+
+    .link-btn span { color: var(--muted); font-size: 11px; }
+
+    /* Sign out */
+    .logout-wrap {
+      margin-top: 40px;
+      animation: appear 0.6s 0.35s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .logout-wrap form { display: inline; }
+
+    .logout-btn {
+      background: none; border: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px; color: var(--muted);
+      cursor: pointer; letter-spacing: 0.04em;
+      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.18s;
+    }
+
+    .logout-btn:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+
+    <!-- Avatar: first letter of username -->
+    <div class="avatar-ring"
+         th:text="${#strings.toUpperCase(#strings.substring(username,0,1))}">U</div>
+
+    <h1 th:text="${username}">Username</h1>
+
+    <p class="role">logged in · myapp</p>
+
+    <div class="line"></div>
+
+    <p class="welcome">
+      Welcome back, <strong th:text="${username}">Username</strong>.<br/>
+      You're signed in and ready to go.
+    </p>
+
+    <!-- Quick links — edit hrefs as needed -->
+    <div class="links">
+      <a href="/profile" class="link-btn">
+        profile <span>→</span>
+      </a>
+      <a href="/settings" class="link-btn">
+        settings <span>→</span>
+      </a>
+    </div>
+
+    <!-- Sign out -->
+    <div class="logout-wrap">
+      <form th:action="@{/logout}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="logout-btn">sign out</button>
+      </form>
+    </div>
+
+  </div>
+
+</body>
+</html>
