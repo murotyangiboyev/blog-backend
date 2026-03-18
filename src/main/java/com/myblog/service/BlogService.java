@@ -2,6 +2,7 @@ package com.myblog.service;
 
 import com.myblog.model.Blog;
 import com.myblog.repository.BlogRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class BlogService {
 
     @Cacheable(value = "blogs", key = "#id")
     public Blog getBlogById(Long id) {
+        System.out.println("DB HIT id:" + id);
         return blogRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Blog not found: " + id));
     }
@@ -35,6 +37,7 @@ public class BlogService {
         return blogRepository.save(blog);
     }
 
+    @CacheEvict(value = "blogs", key = "#id")
     public Blog updateBlog(Long id, String title, String content) {
         Blog blog = getBlogById(id);
         blog.setTitle(title);
@@ -43,8 +46,33 @@ public class BlogService {
         return blogRepository.save(blog);
     }
 
+    @CacheEvict(value = "blogs", key = "#id")
     public void deleteBlog(Long id) {
         blogRepository.deleteById(id);
+    }
+
+    public String processForDisplay(String content) {
+        if (content == null) return "";
+
+        // 1. Convert [text](url) to <a href="url">text</a>
+        content = content.replaceAll(
+                "\\[([^\\]]+)\\]\\(([^)]+)\\)",
+                "<a href=\"$2\" target=\"_blank\" rel=\"noopener\">$1</a>"
+        );
+
+        // 2. Split by blank lines → wrap each block in <p>
+        String[] paragraphs = content.split("\\n\\s*\\n");
+        StringBuilder html = new StringBuilder();
+        for (String para : paragraphs) {
+            String trimmed = para.trim();
+            if (!trimmed.isEmpty()) {
+                // 3. Within a paragraph, single newlines → <br>
+                trimmed = trimmed.replace("\n", "<br>");
+                html.append("<p>").append(trimmed).append("</p>\n");
+            }
+        }
+
+        return html.toString();
     }
 
     private int estimateReadTime(String content) {

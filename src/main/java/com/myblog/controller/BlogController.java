@@ -28,7 +28,11 @@ public class BlogController {
     // PUBLIC: read one post
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
-        model.addAttribute("blog", blogService.getBlogById(id));
+        Blog blog = blogService.getBlogById(id);
+        model.addAttribute("blog", blog);
+        // processedContent is used in the template for display (HTML-rendered)
+        // blog.content is kept raw for the edit form
+        model.addAttribute("processedContent", blogService.processForDisplay(blog.getContent()));
         return "blog-detail";
     }
 

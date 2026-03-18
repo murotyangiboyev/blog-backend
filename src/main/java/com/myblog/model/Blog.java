@@ -1,11 +1,13 @@
 package com.myblog.model;
 
 import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "blogs")
-public class Blog {
+public class Blog implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

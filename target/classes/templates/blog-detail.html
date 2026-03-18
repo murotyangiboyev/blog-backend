@@ -145,7 +145,7 @@
 
     <div class="article-wrap">
       <h1 class="article-title" th:text="${blog.title}">Post Title</h1>
-      <div class="article-body" th:utext="${blog.content}">Content here...</div>
+      <div class="article-body" th:utext="${processedContent}">Content here...</div>
     </div>
 
     <footer class="site-footer">Made with Spring Boot &amp; Thymeleaf</footer>
