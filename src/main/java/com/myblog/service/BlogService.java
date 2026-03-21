@@ -5,20 +5,23 @@ import com.myblog.repository.BlogRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class BlogService {
 
     private final BlogRepository blogRepository;
+
 
     public BlogService(BlogRepository blogRepository) {
         this.blogRepository = blogRepository;
     }
 
     public List<Blog> getAllBlogs() {
-        return blogRepository.findAllByOrderByCreatedAtDesc();
+        return blogRepository.findAllBlogs();
     }
 
     @Cacheable(value = "blogs", key = "#id")
