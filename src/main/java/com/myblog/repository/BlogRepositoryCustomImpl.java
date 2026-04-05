@@ -21,11 +21,6 @@ public class BlogRepositoryCustomImpl implements BlogRepositoryCustom {
         query.setMaxResults(10);
         List<Blog> blogs = query.getResultList();
 
-        System.out.println(blogs.size());
-        for (Blog blog : blogs) {
-            System.out.println(blog.getId());
-        }
-
         return  blogs;
     }
 

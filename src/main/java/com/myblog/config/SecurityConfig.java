@@ -36,10 +36,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+
             .authenticationProvider(authProvider())
             .authorizeHttpRequests(auth -> auth
                 // Public — anyone can view
-                .requestMatchers("/", "/blog", "/blog/{id}").permitAll()
+                .requestMatchers("/", "/blog", "/blog/{id}", "/api/**").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/login").permitAll()
 

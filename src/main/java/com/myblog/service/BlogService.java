@@ -1,7 +1,9 @@
 package com.myblog.service;
 
+import com.myblog.RabbitMq.BlogEventProducer;
 import com.myblog.model.Blog;
 import com.myblog.repository.BlogRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -9,16 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 @Transactional
 public class BlogService {
 
     private final BlogRepository blogRepository;
-
-
-    public BlogService(BlogRepository blogRepository) {
-        this.blogRepository = blogRepository;
-    }
+    private final BlogEventProducer blogEventProducer;
 
     public List<Blog> getAllBlogs() {
         return blogRepository.findAllBlogs();
@@ -37,7 +36,9 @@ public class BlogService {
         blog.setContent(content);
         blog.setAuthor(author);
         blog.setReadMinutes(estimateReadTime(content));
-        return blogRepository.save(blog);
+        Blog saved = blogRepository.save(blog);
+        blogEventProducer.publishBlogCreated(saved);
+        return saved;
     }
 
     @CacheEvict(value = "blogs", key = "#id")
