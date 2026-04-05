@@ -1,6 +1,6 @@
 # Personal Blog — Spring Boot + PostgreSQL
 
-A clean, minimal personal blog inspired by asadullo.com.
+A clean, minimal personal blog.
 
 ## Tech Stack
 - **Backend:** Java 17 + Spring Boot 3.2
