@@ -1,4 +1,4 @@
-# Personal Blog — Spring Boot + PostgreSQL
+# Personal Blog — Spring Boot
 
 A clean, minimal personal blog.
 
