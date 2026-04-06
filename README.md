@@ -6,6 +6,8 @@ A clean, minimal personal blog.
 - **Backend:** Java 17 + Spring Boot 3.2
 - **Frontend:** Thymeleaf (HTML rendered by Spring)
 - **Database:** PostgreSQL
+- **Cache:** Redis
+- **Message Queue:** RabbitMQ
 - **Markdown:** CommonMark (posts written in Markdown)
 - **Auth:** Spring Security (single admin user)
 
