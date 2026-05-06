@@ -36,18 +36,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-
             .authenticationProvider(authProvider())
             .authorizeHttpRequests(auth -> auth
-                // Public — anyone can view
-                .requestMatchers("/", "/blog", "/blog/{id}", "/api/**").permitAll()
-                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/login").permitAll()
 
-                // ADMIN only — write, edit, delete
+                // ADMIN only — must be first
                 .requestMatchers("/blog/new").hasRole("ADMIN")
                 .requestMatchers("/blog/*/edit").hasRole("ADMIN")
                 .requestMatchers("/blog/*/delete").hasRole("ADMIN")
+
+                // Public — anyone can access
+                .requestMatchers("/", "/blog", "/blog/*").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/login", "/register").permitAll() // ← register is public
 
                 .anyRequest().authenticated()
             )
@@ -56,10 +56,12 @@ public class SecurityConfig {
                 .defaultSuccessUrl("/", true)
                 .failureUrl("/login?error")
                 .permitAll()
-            ).logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
-                        .permitAll())
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")
+                .permitAll()
+            )
             .exceptionHandling(ex -> ex
                 .accessDeniedPage("/403")
             );

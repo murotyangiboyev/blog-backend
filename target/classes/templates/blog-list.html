@@ -92,18 +92,21 @@
   </aside>
 
   <div class="main">
-    <header class="topbar">
-      <a href="/" class="topbar-site">myblog</a>
+      <header class="topbar">
+          <a href="/" class="topbar-site">myblog</a>
 
-      <!-- Admin only: write + logout -->
-      <div class="topbar-right" sec:authorize="hasRole('ADMIN')">
-        <a href="/blog/new" class="btn-new">+ write</a>
-        <form th:action="@{/logout}" method="post" style="margin:0">
-          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-          <button type="submit" class="btn-logout">logout</button>
-        </form>
-      </div>
-    </header>
+          <div class="topbar-right">
+              <!-- Admin only -->
+              <a href="/blog/new" class="btn-new" sec:authorize="hasRole('ADMIN')">+ write</a>
+
+              <!-- Any logged in user -->
+              <form sec:authorize="isAuthenticated()"
+                    th:action="@{/logout}" method="post" style="margin:0">
+                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                  <button type="submit" class="btn-logout">logout</button>
+              </form>
+          </div>
+      </header>
 
     <div class="content-wrap">
       <div class="page-heading"><h1>Blog</h1></div>

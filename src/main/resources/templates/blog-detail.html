@@ -125,23 +125,28 @@
   </aside>
 
   <div class="main">
-    <header class="topbar">
-      <a href="/" class="topbar-site">myblog</a>
+      <header class="topbar">
+          <a href="/" class="topbar-site">myblog</a>
 
-      <!-- Admin only: edit + delete + logout -->
-      <div class="topbar-right" sec:authorize="hasRole('ADMIN')">
-        <a th:href="@{/blog/{id}/edit(id=${blog.id})}" class="btn-edit-top">edit</a>
-        <form th:action="@{/blog/{id}/delete(id=${blog.id})}" method="post" style="margin:0">
-          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-          <button type="submit" class="btn-delete-top"
-                  onclick="return confirm('Delete this post permanently?')">delete</button>
-        </form>
-        <form th:action="@{/logout}" method="post" style="margin:0">
-          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-          <button type="submit" class="btn-logout">logout</button>
-        </form>
-      </div>
-    </header>
+          <div class="topbar-right">
+              <!-- Admin only -->
+              <a th:href="@{/blog/{id}/edit(id=${blog.id})}" class="btn-edit-top"
+                 sec:authorize="hasRole('ADMIN')">edit</a>
+              <form sec:authorize="hasRole('ADMIN')"
+                    th:action="@{/blog/{id}/delete(id=${blog.id})}" method="post" style="margin:0">
+                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                  <button type="submit" class="btn-delete-top"
+                          onclick="return confirm('Delete this post permanently?')">delete</button>
+              </form>
+
+              <!-- Any logged in user -->
+              <form sec:authorize="isAuthenticated()"
+                    th:action="@{/logout}" method="post" style="margin:0">
+                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                  <button type="submit" class="btn-logout">logout</button>
+              </form>
+          </div>
+      </header>
 
     <div class="article-wrap">
       <h1 class="article-title" th:text="${blog.title}">Post Title</h1>
