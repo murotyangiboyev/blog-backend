@@ -2,6 +2,7 @@ package com.myblog.controller;
 
 import com.myblog.model.Blog;
 import com.myblog.service.BlogService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,16 +10,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
+@RequiredArgsConstructor
 @Slf4j
 @Controller
 @RequestMapping("/blog")
 public class BlogController {
 
     private final BlogService blogService;
-
-    public BlogController(BlogService blogService) {
-        this.blogService = blogService;
-    }
 
     // PUBLIC: list all posts
     @GetMapping
