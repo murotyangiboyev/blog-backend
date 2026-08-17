@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/blog", "/blog/*").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/login", "/register").permitAll() // ← register is public
+                .requestMatchers("/actuator/health/**").permitAll() // ← container health probes
 
                 .anyRequest().authenticated()
             )
